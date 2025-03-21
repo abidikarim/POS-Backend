@@ -1,22 +1,11 @@
-from datetime import datetime
 import uuid
-from app.enums import AccountStatus, TokenStatus
-from fastapi import status, HTTPException
+from app.enums import TokenStatus
 from sqlalchemy.orm import Session
 from app import models
-from app.OAuth2 import verify_password, create_access_token, hash_password
-from app.services.error import add_error, get_error_detail
-from app.utilities import send_mail
-
 
 def get_confirmation_code(code: str, db: Session):
-
-    return (
-        db.query(models.AccountActivation)
-        .filter(models.AccountActivation.token == code)
-        .first()
-    )
-
+    confirmation_code = db.query(models.AccountActivation).filter(models.AccountActivation.token == code).first()
+    return confirmation_code
 
 def add_confirmation_code(employee_id: int, email: str, db: Session):
     confirmation_code = models.AccountActivation(
@@ -28,21 +17,13 @@ def add_confirmation_code(employee_id: int, email: str, db: Session):
     db.add(confirmation_code)
     return confirmation_code
 
-
 def edit_confirmation_code(code_id: int, db: Session):
-    return (
-        db.query(models.AccountActivation)
-        .filter(models.AccountActivation.id == code_id)
-        .update({models.AccountActivation.status: TokenStatus.Used})
-    )
-
+    updated_code = db.query(models.AccountActivation).filter(models.AccountActivation.id == code_id).update({models.AccountActivation.status: TokenStatus.Used})
+    return updated_code
 
 def get_reset_code(code: str, db: Session):
-    return (
-        db.query(models.ResetPassword)
-        .filter(models.ResetPassword.token == code)
-        .first()
-    )
+    reset_code =  db.query(models.ResetPassword).filter(models.ResetPassword.token == code).first()
+    return reset_code
 
 
 def add_reset_code(employee_id: int, email: str, db: Session):
@@ -55,10 +36,6 @@ def add_reset_code(employee_id: int, email: str, db: Session):
     db.add(reset_code)
     return reset_code
 
-
 def edit_reset_code(code_id: int, db: Session):
-    return (
-        db.query(models.ResetPassword)
-        .filter(models.ResetPassword.id == code_id)
-        .update({models.ResetPassword.status: TokenStatus.Used})
-    )
+   updated_reset_code =  db.query(models.ResetPassword).filter(models.ResetPassword.id == code_id).update({models.ResetPassword.status: TokenStatus.Used})
+   return updated_reset_code

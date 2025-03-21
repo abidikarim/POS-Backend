@@ -5,3 +5,4 @@ class EmailTemplate(Enum):
     ResetPasswordTemplate = "ResetPasswordTemplate"
     ConfirmAccountTemplate = "ConfirmAccountTemplate"
     ConfirmEmailTemplate = "ConfirmEmailTemplate"
+    GiftCardTemplate="GuftCardTemplate"

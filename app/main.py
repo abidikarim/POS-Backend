@@ -22,6 +22,9 @@ app.include_router(router=routers.pricelist.router)
 app.include_router(router=routers.pricelist_line.router)
 app.include_router(router=routers.program.router)
 app.include_router(router=routers.program_item.router)
+app.include_router(router=routers.customer.router)
+app.include_router(router=routers.session.router)
+app.include_router(router=routers.order.router)
 
 app.add_middleware(
     CORSMiddleware,

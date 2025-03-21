@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Gift Card</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f7f7f7; text-align: center; padding: 20px; margin: 0;">
+    <div style="max-width: 500px; margin: auto; background: #ffffff; padding: 20px; border-radius: 10px; 
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); text-align: center;">
+
+        <!-- Header -->
+        <div style="background: #4CAF50; padding: 10px; color: white; font-size: 20px; border-radius: 10px 10px 0 0;">
+            🎁 Congratulations! You Received a Gift Card
+        </div>
+
+        <p style="font-size: 16px; color: #333;">Hello <b>{{ name }}</b>,</p>
+        <p style="font-size: 14px; color: #555;">
+            You've received a special gift card from us! Use the code below to claim your discount:
+        </p>
+
+        <!-- Gift Code -->
+        <p style="font-size: 24px; font-weight: bold; color: #333; padding: 10px; background: #f0f0f0; 
+                  display: inline-block; border-radius: 5px;">
+            {{ code }}
+        </p>
+
+        <p style="font-size: 16px; color: #333;">Discount: <b>{{ discount }}%</b></p>
+        <p style="font-size: 16px; color: #333;">Valid Until: <b>{{ end_date }}</b></p>
+
+        <!-- Redeem Button -->
+        <a href="{{ redeem_link }}"
+            style="background: #4CAF50; color: white; padding: 10px 20px; 
+                   text-decoration: none; display: inline-block; margin-top: 20px; border-radius: 5px; font-weight: bold;">
+            Redeem Now
+        </a>
+
+        <p style="margin-top: 20px; font-size: 14px; color: #777;">
+            Thank you for choosing us! ❤️
+        </p>
+    </div>
+</body>
+
+</html>

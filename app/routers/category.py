@@ -10,7 +10,7 @@ error_keys={
     "categories_pkey":{"message":"Category not found","status":404},
 }
 
-@router.get("/")
+@router.get("")
 def get_all(db: dbDep, pg_params: pagination_params, curr_emp: currentEmployee):
     try:
         data = category.get(db, pg_params)
@@ -35,7 +35,7 @@ def get_one(db: dbDep, id: int, curr_emp: currentEmployee):
         return schemas.BaseOut(status_code=error_detail["status"], detail=error_detail["message"])
     return schemas.CategoryOut.model_validate(category_db)
 
-@router.post("/")
+@router.post("")
 def create_category(db: dbDep, category_data: categorySchema , curr_emp: currentEmployee,category_image:UploadFile = File(...)):
     try:
         category.add(db, category_data.model_dump(),category_image)

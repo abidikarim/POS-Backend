@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import date, datetime
-from app.enums import Gender,AccountStatus,ContractType,Role,FieldType,MatchyComparer,ConditionProperty,ProgramType,ProgramItemType
+from app.enums import Gender,AccountStatus,ContractType,Role,FieldType,MatchyComparer,ConditionProperty,ProgramType,ProgramItemType,SessionStatus
 from typing import List, Dict, Any, Optional
 from app.enums.emailTemplate import EmailTemplate
 
@@ -138,32 +138,29 @@ class PricelistBase(OurBaseModel):
     name: str
     description: str
 
-class PricelistOut(PricelistBase):
-    id: int
-    created_at: datetime
-
-class PricelistsOut(PagedResponse):
-    list: List[PricelistOut]
-
 class PricelistLineBase(OurBaseModel):
     new_price: float
     min_quantity: int
-    start_date: datetime
-    end_date: datetime
+    start_date: date
+    end_date: date
     pricelist_id: int
     product_id: int
 
 class PricelistLineOut(PricelistLineBase):
     id: int
-    pricelist: PricelistOut
-    product: ProductOut
+    product:ProductOut
+
+class PricelistOut(PricelistBase):
+    id: int
+    pricelist_lines:List[PricelistLineOut]
+    created_at: datetime
 
 class ProgramBase(OurBaseModel):
     name: str
-    description: str
+    description: Optional[str]
     program_type: ProgramType 
-    start_date: datetime
-    end_date: datetime
+    start_date: date
+    end_date:date
     discount: Optional[float] = None
     product_to_buy_id: Optional[int] = None
     product_to_get_id: Optional[int] = None
@@ -174,12 +171,6 @@ class ProgramCreate(ProgramBase):
 class ProgramUpdate(ProgramBase):
     pass
 
-class ProgramOut(ProgramBase):
-    id: int 
-
-class ProgramsOut(PagedResponse):
-    list:List[ProgramOut]
-
 class ProgramItemBase(OurBaseModel):
     code:str
     program_id:int
@@ -188,5 +179,67 @@ class ProgramItemBase(OurBaseModel):
 class ProgramItemOut(ProgramItemBase):
     id:int
 
+class ProgramOut(ProgramBase):
+    id: int 
+    items:List[ProgramItemOut]
+    product_to_get:Optional[ProductOut]
+    product_to_buy:Optional[ProductOut]
+
 class ProgramItemsOut(PagedResponse):
     list:List[ProgramItemOut]
+
+class GiftCard(OurBaseModel):
+    code_id:int
+    customer_id:int
+
+class Customer(OurBaseModel):
+    name:str
+    email:str
+    pricelist_id:Optional[int] = None
+
+class CustomerOut(Customer):
+    id:int
+
+class CustomersOut(PagedResponse):
+    list:List[CustomerOut]
+
+
+class Session(OurBaseModel):
+    opened_at:datetime
+    closed_at:Optional[datetime] =None
+    employee_id:int
+    status:SessionStatus
+
+class SessionOut(Session):
+    id:int
+    employee:EmployeeOut
+
+class SessionsOut(PagedResponse):
+    list:List[SessionOut]
+
+
+class OrderBase(OurBaseModel):
+    number:str
+    total_price:float
+    customer_id:Optional[int]=None
+    session_id:int
+    pricelist_id:Optional[int]=None
+    program_item_id:Optional[int] =None
+
+class OrderOut(OrderBase):
+    id:int
+    session:SessionOut
+    created_at:datetime
+
+class OrdersOut(PagedResponse):
+    list:List[OrderOut]
+
+class OrderLineBase(OurBaseModel):
+    unit_price:float
+    total_price:float
+    quantity:int
+    product_id:int
+    order_id:int
+
+class OrderLineOut(OrderLineBase):
+    id:int

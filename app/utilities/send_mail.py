@@ -24,6 +24,7 @@ template_per_type = {
     EmailTemplate.ResetPasswordTemplate: "reset_password.html",
     EmailTemplate.ConfirmAccountTemplate: "confirm_account.html",
     EmailTemplate.ConfirmEmailTemplate: "confirm_email.html",
+    EmailTemplate.GiftCardTemplate:"gift_card.html"
 }
 
 

@@ -11,3 +11,7 @@ from .Pricelist import Pricelist
 from .PricelistLine import PricelistLine
 from .Program import Program
 from .ProgramItem import ProgramItem
+from .Customer import Customer
+from .Session import Session
+from .Order import Order
+from .OrderLine import OrderLine

@@ -7,3 +7,6 @@ from .pricelist import router
 from .pricelist_line import router
 from .program import router
 from .program_item import router
+from .customer import router
+from .session import router
+from .order import router

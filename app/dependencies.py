@@ -35,9 +35,14 @@ class ProductFilter(PaginationParams):
        min_quantity :int=0
        max_quantity: int =0
 
+class OrderFilter(PaginationParams):
+     ref:int=0
+     session_id:int=0
+     number:str=""
 
 product_filter = Annotated[ProductFilter, Depends()]
 pagination_params = Annotated[PaginationParams, Depends()]
+order_filter = Annotated[OrderFilter,Depends()]
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
 tokenDep = Annotated[str, Depends(oauth_scheme)]
 

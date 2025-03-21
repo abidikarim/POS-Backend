@@ -1,8 +1,22 @@
+import os
+from pathlib import Path
+from typing import List
 from fastapi import APIRouter
+from fastapi.responses import FileResponse
 from app import schemas
-from app.dependencies import dbDep, currentEmployee, pagination_params
-from app.services import program
+from app.dependencies import dbDep, currentEmployee
+from app.enums.emailTemplate import EmailTemplate
+from app.services import program,program_item,customer
 from app.services.error import  get_error_detail
+from app.utilities import send_mail
+import tempfile
+from jinja2 import Environment, FileSystemLoader
+import pdfkit
+
+
+TEMPLATES_DIR = Path(__file__).parent / "../templates"
+env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+
 
 error_keys={
     "programs_product_to_buy_id_fkey":{"message":"Product to buy not found","status":404},
@@ -14,43 +28,69 @@ error_keys={
 
 router = APIRouter(prefix="/program",tags=["Program"])
 
-@router.get("/",response_model=schemas.ProgramsOut)
-def get_programs(pg_params:pagination_params,db:dbDep,cur_emp:currentEmployee):
+@router.get("",response_model=List[schemas.ProgramOut])
+def get_programs(db:dbDep,cur_emp:currentEmployee):
     try:
-        data = program.get(pg_params,db)
+        data = program.get(db)
+        return data
     except Exception as error:
         error_detail = get_error_detail(str(error),error_keys)
         return schemas.BaseOut(status_code=error_detail["status"],detail=error_detail["message"])
-    return schemas.ProgramsOut(**data)
 
-@router.post("/")
+@router.post("")
 def create_program(program_data:schemas.ProgramCreate,db:dbDep,cur_emp:currentEmployee):
     try:
         new_program = program.add(program_data.model_dump(),db)
     except Exception as error:
         error_detail = get_error_detail(str(error),error_keys)
         return schemas.BaseOut(status_code=error_detail["status"],detail=error_detail["message"])
-    return schemas.ProgramOut.model_validate(new_program)
+    return schemas.BaseOut(status_code=201,detail="Program created")
 
 
-@router.put("/{id:int}")
-def update_program(program_data:schemas.ProgramUpdate,id:int,db:dbDep,cur_emp:currentEmployee):
+@router.post("/sendGiftCard")
+async def send_gift_card(db:dbDep,data:schemas.GiftCard,cur_emp:currentEmployee):
     try:
-        updated_program = program.edit(id,program_data.model_dump(),db)
-        if not updated_program:
-            return schemas.BaseOut(status_code=404,detail="Program not found")
+        custmr = customer.get_by_id(db,data.customer_id)
+        item = program_item.get_by_id(data.code_id,db)
+        await send_mail(
+            schemas.MailData(
+                emails=[custmr.email],
+                body={"name": f"{custmr.name}","code":item.code,"discount":item.program.discount,"end_date":item.program.end_date},
+                template=EmailTemplate.GiftCardTemplate,
+                subject="🎁 Your Gift Card",
+            )
+        )
+        return schemas.BaseOut(status_code=200,detail="Code send successfully")
     except Exception as error:
-        error_detail = get_error_detail(str(error),error_keys)
-        return schemas.BaseOut(status_code=error_detail["status"],detail=error_detail["message"])
-    return schemas.BaseOut(status_code=200,detail="Program updated")
-
-@router.delete("/{id}")
-def delete_program(id:int,db:dbDep,cur_emp:currentEmployee):
+        error_detail =get_error_detail(str(error),error_keys) 
+        return schemas.BaseOut(status_code=error_detail['status'],detail=error_detail['message'])
+    
+@router.get("/generate-pdf/{item_id}")
+def generate_pdf(db:dbDep,item_id:int,cur_emp:currentEmployee):
     try:
-        deleted_program = program.delete(id,db)
-        if not deleted_program:
-            return schemas.BaseOut(status_code=404,detail="Program not found")
-    except Exception as error:
-        error_detail = get_error_detail(str(error),error_keys)
-        return schemas.BaseOut(status_code=error_detail["status"],detail=error_detail["message"])
-    return schemas.BaseOut(status_code=200,detail="Program deleted")
+        item = program_item.get_by_id(item_id, db)
+
+        if not item:
+            return schemas.BaseOut(status_code=404,detail="Code not found")
+        data = {
+            "code": item.code,
+            "discount": item.program.discount,
+            "end_date": item.program.end_date,
+        }
+
+        # Load and render the HTML template
+        template = env.get_template("gift_card.html")  # Load from templates folder
+        rendered_html = template.render(data)
+
+        # Generate a temporary PDF file
+        temp_dir = tempfile.gettempdir()
+        pdf_path = os.path.join(temp_dir, "giftcard.pdf")
+
+        # Convert HTML to PDF using pdfkit
+        PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf="C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe")
+        pdfkit.from_string(rendered_html, pdf_path, configuration=PDFKIT_CONFIG)
+        # Return the PDF file as a response
+        return FileResponse(pdf_path, media_type="application/pdf", filename="giftcard.pdf")
+    except Exception as error :
+        return schemas.BaseOut(status_code=500,detail=str(error))
+       

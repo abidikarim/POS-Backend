@@ -1,6 +1,7 @@
 from app.database import Base
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from app.enums import ProgramItemType
+from sqlalchemy.orm import relationship
 
 
 class ProgramItem(Base):
@@ -9,6 +10,5 @@ class ProgramItem(Base):
     code = Column(String, nullable=False)
     status = Column(Enum(ProgramItemType), nullable=False)
     program_id = Column(Integer, ForeignKey("programs.id", ondelete="CASCADE"))
-
-    # Fix that when create orders table
-    # order_id = Column(Integer,ForeignKey('orders.id',ondelete="CASCADE"),nullable=True)
+    program=relationship("Program",back_populates="items")
+    order_id = Column(Integer,ForeignKey('orders.id'),nullable=True)

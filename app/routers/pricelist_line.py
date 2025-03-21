@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter
 from app import schemas
 from app.services import pricelist_line
-from app.dependencies import dbDep
+from app.dependencies import dbDep,currentEmployee
 from app.services.error import get_error_detail
 
 router = APIRouter(prefix="/pricelistline", tags=["PricelistLine"])
@@ -16,7 +16,7 @@ error_keys={
 
 
 @router.get("/", response_model=List[schemas.PricelistLineOut])
-def get_pricelist_line(db: dbDep):
+def get_pricelist_line(db: dbDep,curr_emp:currentEmployee):
     try:
         pricelist_lines = pricelist_line.get(db)
         return pricelist_lines
@@ -26,7 +26,7 @@ def get_pricelist_line(db: dbDep):
 
 
 @router.post("/")
-def create_pricelist_line(db: dbDep, data: schemas.PricelistLineBase):
+def create_pricelist_line(db: dbDep, data: schemas.PricelistLineBase,curr_emp:currentEmployee):
     try:
         new_pricelist_line = pricelist_line.add(db, data.model_dump())
     except Exception as error:
@@ -36,7 +36,7 @@ def create_pricelist_line(db: dbDep, data: schemas.PricelistLineBase):
 
 
 @router.put("/{id}")
-def update_pricelist_line(db: dbDep, data: schemas.PricelistLineBase, id: int):
+def update_pricelist_line(db: dbDep, data: schemas.PricelistLineBase, id: int,curr_emp:currentEmployee):
     try:
         updated_pricelist_line = pricelist_line.update(db, data.model_dump(), id)
         if not updated_pricelist_line:
@@ -48,7 +48,7 @@ def update_pricelist_line(db: dbDep, data: schemas.PricelistLineBase, id: int):
 
 
 @router.delete("/{id}")
-def delete_pricelist_line(db: dbDep, id: int):
+def delete_pricelist_line(db: dbDep, id: int,curr_emp:currentEmployee):
     try:
         deleted_pricelist_line  =pricelist_line.delete(db, id)
         if not deleted_pricelist_line:

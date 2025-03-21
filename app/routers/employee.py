@@ -20,16 +20,8 @@ error_keys = {
 @router.get("/", response_model=schemas.EmployeesOut)
 def get_employees(db: dbDep, pg_params: pagination_params, cur_emp: currentEmployee):
     try:
-        data = employee.get_all(db=db, pg_params=pg_params)
-        return schemas.EmployeesOut(
-            list=[employee.convert_employee_to_schema(emp) for emp in data["list"]],
-            total_records=data["total_records"],
-            total_pages=data["total_pages"],
-            page_number=pg_params.page,
-            page_size=pg_params.limit,
-            detail="Employees fetched",
-            status_code=200,
-        )
+       return  employee.get_all(db=db, pg_params=pg_params)
+        
     except Exception as error:
         error_detail = get_error_detail(str(error), error_keys)
         return schemas.BaseOut(status_code=error_detail["status"], detail=error_detail["message"])

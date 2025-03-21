@@ -9,3 +9,4 @@ from .MatchyComparer import MatchyComparer
 from .emailTemplate import EmailTemplate
 from .ProgramType import ProgramType
 from .ProgramItemType import ProgramItemType
+from .SessionStatus import SessionStatus

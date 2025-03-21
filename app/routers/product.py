@@ -6,7 +6,8 @@ from app.services.error import add_error, get_error_detail
 
 error_keys = {
     "products_category_id_fkey": {"status": 400,"message": "Category has this id not found"},
-    "products_pkey":{"message":"Product not found","status":404}
+    "products_pkey":{"message":"Product not found","status":404},
+    "products_program_id_fkey":{"message":"Program not found","status":404}
     }
 
 router = APIRouter(prefix="/product", tags=["Product"])
@@ -35,18 +36,7 @@ def possible_fields(db: dbDep, cur_emp: currentEmployee):
         error_detail = get_error_detail(str(error), error_keys)
         return schemas.BaseOut(status_code=error_detail["status"], detail=error_detail["message"])
 
-@router.get("/{id:int}")
-def get_one(db: dbDep, id: int, cur_emp: currentEmployee):
-    try:
-       product_db = product.get_by_id(db,id)
-       if not product_db:
-           return schemas.BaseOut(status_code=404,detail="Product not found")
-    except Exception as error:
-        error_detail = get_error_detail(str(error), error_keys)
-        return schemas.BaseOut(status_code=error_detail["status"], detail=error_detail["message"])
-    return schemas.ProductOut.model_validate(product_db)
-
-@router.post("/")
+@router.post("")
 async def create_product(db: dbDep, product_data:  productSchema , cur_emp: currentEmployee,product_image:UploadFile = File(...)): 
     try:
         new_product = product.add(db, product_data.model_dump(),product_image)
