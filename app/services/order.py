@@ -30,6 +30,8 @@ def get(db:Session,pg_params:OrderFilter):
             pricelist_id=order.pricelist_id,
             program_item_id=order.program_item_id,
             created_at=order.created_at,
+            lines=order.lines,
+            customer=order.customer,
             session=schemas.SessionOut(
                 id=order.session.id,
                 opened_at=order.session.opened_at,
@@ -48,3 +50,19 @@ def get(db:Session,pg_params:OrderFilter):
         status_code=200,
         detail="Orders fetched" 
     )
+
+
+def add(db:Session,data:dict):
+    lines=data.pop("lines")
+    new_order= models.Order(**data)
+    db.add(new_order)
+    db.flush()
+    db.add_all([models.OrderLine(unit_price=line['unit_price'],total_price=line['unit_price'] * line['quantity'],quantity=line['quantity'],product_id=line['product_id'],order_id=new_order.id) for line in lines])
+    db.commit()
+    return new_order
+
+def edit(db:Session,data:dict,id:int):
+    updated_order= db.query(models.Order).filter(models.Order.id ==id ).update(data,synchronize_session=False)
+    db.commit()
+    return updated_order
+

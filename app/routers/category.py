@@ -17,8 +17,8 @@ def get_all(db: dbDep, pg_params: pagination_params, curr_emp: currentEmployee):
         return schemas.CategoriesOut(
             total_records=data["total_records"],
             total_pages=data["total_pages"],
-            page_number=pg_params.page,
-            page_size=pg_params.limit,
+            page_number=pg_params.page or 1,
+            page_size=pg_params.limit or data["total_records"],
             list=data["list"],
             detail="Categories fetched",
             status_code=200,

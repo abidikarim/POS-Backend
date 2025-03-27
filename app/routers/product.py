@@ -12,7 +12,7 @@ error_keys = {
 
 router = APIRouter(prefix="/product", tags=["Product"])
 
-@router.get("/")
+@router.get("")
 def get_all(db: dbDep, pg_params: product_filter, cur_emp: currentEmployee):
     try:
         data = product.get(db, pg_params)

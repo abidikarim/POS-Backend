@@ -25,8 +25,8 @@ productSchema = Annotated[schemas.ProductBase,Depends(get_product_schema)]
 
 class PaginationParams(BaseModel):
       name :Optional[str]=""
-      page:int=1
-      limit:int=10
+      page:int=0
+      limit:int=0
 
 class ProductFilter(PaginationParams):
        category:str=""

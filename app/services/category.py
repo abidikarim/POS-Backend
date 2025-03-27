@@ -10,7 +10,6 @@ from app.utilities import div_ciel
 def get(db: Session, pg_params: PaginationParams = None):
     if pg_params is None:
         return db.query(models.Category).all()
-    skip = pg_params.limit * (pg_params.page - 1)
     query = db.query(models.Category)
     if pg_params.name != None and pg_params.name != "":
         query = query.filter(
@@ -18,9 +17,14 @@ def get(db: Session, pg_params: PaginationParams = None):
                 func.concat(models.Category.name, " ", models.Category.description)
             ).contains(func.lower(pg_params.name))
         )
+    if pg_params.limit:
+        query = query.limit(pg_params.limit)
+    if pg_params.page:
+         skip = pg_params.limit * (pg_params.page - 1)
+         query = query.offset(skip)
     total_records = query.count()
     total_pages = div_ciel(total_records, pg_params.limit)
-    result = query.limit(pg_params.limit).offset(skip).all()
+    result = query.all()
     return {"total_records": total_records, "total_pages": total_pages, "list": result}
 
 def get_by_id(db: Session, id: int):

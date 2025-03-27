@@ -161,7 +161,7 @@ class ProgramBase(OurBaseModel):
     program_type: ProgramType 
     start_date: date
     end_date:date
-    discount: Optional[float] = None
+    discount: Optional[int] = None
     product_to_buy_id: Optional[int] = None
     product_to_get_id: Optional[int] = None
 
@@ -181,7 +181,7 @@ class ProgramItemOut(ProgramItemBase):
 
 class ProgramOut(ProgramBase):
     id: int 
-    items:List[ProgramItemOut]
+    items:Optional[List[ProgramItemOut]]
     product_to_get:Optional[ProductOut]
     product_to_buy:Optional[ProductOut]
 
@@ -217,6 +217,15 @@ class SessionOut(Session):
 class SessionsOut(PagedResponse):
     list:List[SessionOut]
 
+class OrderLineBase(OurBaseModel):
+    unit_price:float
+    total_price:float
+    quantity:int
+    product_id:int
+
+class OrderLineOut(OrderLineBase):
+    id:int
+    order_id:int
 
 class OrderBase(OurBaseModel):
     number:str
@@ -225,21 +234,14 @@ class OrderBase(OurBaseModel):
     session_id:int
     pricelist_id:Optional[int]=None
     program_item_id:Optional[int] =None
+    lines:List[OrderLineBase]
 
 class OrderOut(OrderBase):
     id:int
     session:SessionOut
+    customer:Optional[CustomerOut]
     created_at:datetime
 
 class OrdersOut(PagedResponse):
     list:List[OrderOut]
 
-class OrderLineBase(OurBaseModel):
-    unit_price:float
-    total_price:float
-    quantity:int
-    product_id:int
-    order_id:int
-
-class OrderLineOut(OrderLineBase):
-    id:int

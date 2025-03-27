@@ -14,4 +14,5 @@ class Order(Base):
     program_item_id=Column(Integer,ForeignKey("program_items.id"),nullable=True)
     created_at=Column(DateTime,server_default=func.now())
     session =relationship("Session")
-    
+    lines=relationship("OrderLine")
+    customer=relationship("Customer")
